@@ -185,10 +185,6 @@ export default function App() {
     ? services 
     : services.filter(s => s.category === activeTab);
 
-  const isAdmin =
-    userProfile?.role === 'admin' ||
-    (user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false);
-
   const [staffRecord, setStaffRecord] = useState<Staff | null>(null);
 
   useEffect(() => {
