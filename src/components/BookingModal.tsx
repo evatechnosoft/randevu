@@ -42,7 +42,7 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [bookedStaffIds, setBookedStaffIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<Appointment['paymentMethod']>('transfer');
+  const [paymentMethod, setPaymentMethod] = useState<Appointment['paymentMethod'] | null>(null);
 
   const getScheduleByDate = (weeklySchedule: Record<string, { start: string; end: string; isOpen: boolean }> | undefined, targetDate: Date) => {
     if (!weeklySchedule) return undefined;
@@ -69,7 +69,7 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
       setDate(undefined);
       setSelectedTime(undefined);
       setSelectedStaff(null);
-      setPaymentMethod('transfer');
+      setPaymentMethod(null);
     }
   }, [isOpen]);
 
@@ -114,7 +114,7 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
   }, [date, selectedTime, isOpen]);
 
   const handleManualBooking = async () => {
-    if (!auth.currentUser || !date || !selectedTime || !service) return;
+    if (!auth.currentUser || !date || !selectedTime || !service || !paymentMethod) return;
 
     setIsSubmitting(true);
     
@@ -155,7 +155,8 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
 
   const handleWhatsApp = () => {
     if (!service || !date || !selectedTime) return;
-    const message = `Merhaba, ${service.name} için ${format(date, 'dd MMMM yyyy', { locale: tr })} tarihinde saat ${selectedTime} için randevum oluşturuldu. Ödeme Yöntemi: ${paymentMethod === 'cash' ? 'Elden' : 'Havale'}. Personel: ${selectedStaff?.name || 'Otomatik'}`;
+    const paymentText = paymentMethod === 'cash' ? 'Elden' : paymentMethod === 'transfer' ? 'Havale' : 'Belirtilmedi';
+    const message = `Merhaba, ${service.name} için ${format(date, 'dd MMMM yyyy', { locale: tr })} tarihinde saat ${selectedTime} için randevum oluşturuldu. Ödeme Yöntemi: ${paymentText}. Personel: ${selectedStaff?.name || 'Otomatik'}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/905000000000?text=${encodedMessage}`, '_blank');
   };
@@ -202,6 +203,11 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
   };
 
   const handleNextFromMethod = () => {
+    if (!paymentMethod) {
+      toast.error('Lütfen ödeme yöntemi seçin.');
+      return;
+    }
+
     if (paymentMethod === 'transfer') {
       setStep('payment-info');
     } else {
@@ -393,6 +399,9 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
                       <p className="font-medium">Banka Havalesi</p>
                       <p className="text-xs text-white/60">IBAN ile ödeme yapın</p>
                     </div>
+                    {paymentMethod === 'transfer' && (
+                      <Badge variant="outline" className="ml-auto bg-brand-purple/20 text-brand-purple border-brand-purple/40">Seçili</Badge>
+                    )}
                   </Button>
 
                   <Button
@@ -408,13 +417,20 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
                       <p className="font-medium">Elden Ödeme</p>
                       <p className="text-xs text-white/60">Merkezimizde ödeme yapın</p>
                     </div>
+                    {paymentMethod === 'cash' && (
+                      <Badge variant="outline" className="ml-auto bg-green-500/20 text-green-400 border-green-500/40">Seçili</Badge>
+                    )}
                   </Button>
                 </div>
               </div>
             </div>
             <div className="flex gap-2 pt-2">
               <Button variant="ghost" onClick={() => setStep('staff')} className="flex-1">Geri</Button>
-              <Button onClick={handleNextFromMethod} className="flex-[2] btn-gradient rounded-xl shadow-lg shadow-brand-pink/20">
+              <Button
+                onClick={handleNextFromMethod}
+                disabled={!paymentMethod}
+                className="flex-[2] btn-gradient rounded-xl shadow-lg shadow-brand-pink/20"
+              >
                 Devam Et
               </Button>
             </div>

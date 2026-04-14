@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
+const ADMIN_EMAILS = ['deancjx@gmail.com', 'xdeancjx@gmail.com', 'eralp.yildiz@layersup.com'];
+
 const MOCK_SERVICES: Service[] = [
   {
     id: '1',
@@ -112,7 +114,7 @@ export default function App() {
           displayName: user.displayName || 'Anonim',
           email: user.email || '',
           photoURL: user.photoURL || '',
-          role: user.email === 'deancjx@gmail.com' ? 'admin' : 'client',
+          role: 'client',
           createdAt: new Date().toISOString()
         };
         await setDoc(docRef, newProfile);
@@ -157,7 +159,9 @@ export default function App() {
     ? MOCK_SERVICES 
     : MOCK_SERVICES.filter(s => s.category === activeTab);
 
-  const isAdmin = userProfile?.role === 'admin';
+  const isAdmin =
+    userProfile?.role === 'admin' ||
+    (user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false);
 
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
