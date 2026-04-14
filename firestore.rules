@@ -86,7 +86,7 @@ service cloud.firestore {
     }
 
     match /services/{serviceId} {
-      allow read: if true; // Services are public
+      allow read: if true;
       allow write: if isAdmin();
     }
 

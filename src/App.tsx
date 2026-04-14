@@ -7,7 +7,8 @@ import { CustomerDatabase } from './components/CustomerDatabase';
 import { AppointmentManagement } from './components/AppointmentManagement';
 import { RoomManagement } from './components/RoomManagement';
 import { Announcements } from './components/Announcements';
-import { Service, Appointment, UserProfile, Announcement } from './types';
+import { ServiceManagement } from './components/ServiceManagement';
+import { Service, Appointment, UserProfile, Announcement, Staff, Room } from './types';
 import { db, collection, onSnapshot, query, where, auth, doc, getDoc, setDoc } from './lib/firebase';
 import { useAuthState } from './hooks/useAuthState';
 import { Toaster } from '@/components/ui/sonner';
@@ -84,6 +85,7 @@ export default function App() {
   const { t, language } = useLanguage();
   const { user, loading: authLoading } = useAuthState();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [userAppointments, setUserAppointments] = useState<Appointment[]>([]);
@@ -91,12 +93,33 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  const isAdmin =
+    userProfile?.role === 'admin' ||
+    (user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false);
+
   useEffect(() => {
+    const unsubServices = onSnapshot(collection(db, 'services'), (snapshot) => {
+      const serviceList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Service));
+      if (serviceList.length === 0 && isAdmin) {
+        // Initial seed if empty
+        MOCK_SERVICES.forEach(async (s) => {
+          const { id, ...data } = s;
+          await setDoc(doc(db, 'services', id), data);
+        });
+      } else {
+        setServices(serviceList);
+      }
+    });
+
     const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snapshot) => {
       setAnnouncements(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement)));
     });
-    return () => unsubAnnouncements();
-  }, []);
+
+    return () => {
+      unsubServices();
+      unsubAnnouncements();
+    };
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!user) {
@@ -159,8 +182,8 @@ export default function App() {
   };
 
   const filteredServices = activeTab === 'all' 
-    ? MOCK_SERVICES 
-    : MOCK_SERVICES.filter(s => s.category === activeTab);
+    ? services 
+    : services.filter(s => s.category === activeTab);
 
   const isAdmin =
     userProfile?.role === 'admin' ||
@@ -419,6 +442,12 @@ export default function App() {
                       Randevular
                     </TabsTrigger>
                     {isAdmin && (
+                      <TabsTrigger value="services-mgmt" className="rounded-lg data-[state=active]:bg-brand-pink">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Hizmet Yönetimi
+                      </TabsTrigger>
+                    )}
+                    {isAdmin && (
                       <TabsTrigger value="rooms" className="rounded-lg data-[state=active]:bg-brand-pink">
                         <Landmark className="w-4 h-4 mr-2" />
                         Odalar & Masalar
@@ -445,6 +474,11 @@ export default function App() {
                 <TabsContent value="appointments">
                   <AppointmentManagement staffId={staffRecord?.id} />
                 </TabsContent>
+                {isAdmin && (
+                  <TabsContent value="services-mgmt">
+                    <ServiceManagement />
+                  </TabsContent>
+                )}
                 {isAdmin && (
                   <TabsContent value="rooms">
                     <RoomManagement />
