@@ -11,18 +11,31 @@ import { tr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-export function AppointmentManagement() {
+interface AppointmentManagementProps {
+  staffId?: string;
+}
+
+export function AppointmentManagement({ staffId }: AppointmentManagementProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedApp, setSelectedApp] = useState<Appointment | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'appointments'), orderBy('createdAt', sortOrder));
+    let q = query(collection(db, 'appointments'), orderBy('createdAt', sortOrder));
+    
+    if (staffId) {
+      q = query(
+        collection(db, 'appointments'), 
+        where('staffId', '==', staffId),
+        orderBy('createdAt', sortOrder)
+      );
+    }
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setAppointments(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment)));
     });
     return () => unsubscribe();
-  }, [sortOrder]);
+  }, [sortOrder, staffId]);
 
   const handleStatusUpdate = async (id: string, status: Appointment['status'], paymentStatus?: Appointment['paymentStatus']) => {
     try {

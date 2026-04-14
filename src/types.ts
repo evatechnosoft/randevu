@@ -21,6 +21,7 @@ export interface WorkingHours {
 export interface Staff {
   id: string;
   name: string;
+  email: string;
   specialties: string[];
   weeklySchedule: Record<string, WorkingHours>; // e.g., { "Monday": { start: "09:00", end: "18:00", isOpen: true } }
   imageUrl: string;

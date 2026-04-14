@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { db, collection, onSnapshot, updateDoc, doc, OperationType, handleFirestoreError } from '../lib/firebase';
-import { UserProfile } from '../types';
+import { db, collection, onSnapshot, updateDoc, doc, OperationType, handleFirestoreError, query, where } from '../lib/firebase';
+import { UserProfile, Appointment } from '../types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,17 +8,41 @@ import { Textarea } from '@/components/ui/textarea';
 import { Search, User, Phone, Mail, FileText, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function CustomerDatabase() {
+interface CustomerDatabaseProps {
+  staffId?: string;
+}
+
+export function CustomerDatabase({ staffId }: CustomerDatabaseProps) {
   const [customers, setCustomers] = useState<UserProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
-      setCustomers(snapshot.docs.map(doc => ({ ...doc.data() } as UserProfile)));
-    });
-    return () => unsubscribe();
-  }, []);
+    if (staffId) {
+      // If staff, first find all their appointments to get unique customer IDs
+      const qApps = query(collection(db, 'appointments'), where('staffId', '==', staffId));
+      const unsubApps = onSnapshot(qApps, (snapshot) => {
+        const uniqueUserIds = Array.from(new Set(snapshot.docs.map(doc => (doc.data() as Appointment).userId)));
+        
+        if (uniqueUserIds.length > 0) {
+          const unsubUsers = onSnapshot(collection(db, 'users'), (userSnap) => {
+            const allUsers = userSnap.docs.map(doc => ({ ...doc.data() } as UserProfile));
+            setCustomers(allUsers.filter(u => uniqueUserIds.includes(u.uid)));
+          });
+          return () => unsubUsers();
+        } else {
+          setCustomers([]);
+        }
+      });
+      return () => unsubApps();
+    } else {
+      // If admin, show all
+      const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
+        setCustomers(snapshot.docs.map(doc => ({ ...doc.data() } as UserProfile)));
+      });
+      return () => unsubscribe();
+    }
+  }, [staffId]);
 
   const filteredCustomers = customers.filter(c => 
     c.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||

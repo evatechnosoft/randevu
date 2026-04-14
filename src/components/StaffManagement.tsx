@@ -19,6 +19,7 @@ const DEFAULT_SCHEDULE: Record<string, WorkingHours> = DAYS.reduce((acc, day) =>
 export function StaffManagement() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [newSpecialties, setNewSpecialties] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
@@ -31,20 +32,22 @@ export function StaffManagement() {
   }, []);
 
   const handleAddStaff = async () => {
-    if (!newName || newSpecialties.length === 0) {
-      toast.error('Lütfen isim ve en az bir uzmanlık alanı girin.');
+    if (!newName || !newEmail || newSpecialties.length === 0) {
+      toast.error('Lütfen isim, e-posta ve en az bir uzmanlık alanı girin.');
       return;
     }
 
     try {
       await addDoc(collection(db, 'staff'), {
         name: newName,
+        email: newEmail.toLowerCase().trim(),
         specialties: newSpecialties,
         isActive: true,
         weeklySchedule: DEFAULT_SCHEDULE,
         imageUrl: `https://avatar.iran.liara.run/public/${Math.floor(Math.random() * 100)}`
       });
       setNewName('');
+      setNewEmail('');
       setNewSpecialties([]);
       setIsAdding(false);
       toast.success('Personel başarıyla eklendi.');
@@ -101,12 +104,21 @@ export function StaffManagement() {
             <CardTitle className="text-white">Yeni Personel Ekle</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input 
-              placeholder="Personel Adı" 
-              value={newName} 
-              onChange={(e) => setNewName(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input 
+                placeholder="Personel Adı" 
+                value={newName} 
+                onChange={(e) => setNewName(e.target.value)}
+                className="bg-white/5 border-white/10 text-white"
+              />
+              <Input 
+                type="email"
+                placeholder="E-posta (Giriş adresi)" 
+                value={newEmail} 
+                onChange={(e) => setNewEmail(e.target.value)}
+                className="bg-white/5 border-white/10 text-white"
+              />
+            </div>
             <div className="space-y-2">
               <p className="text-sm text-white/60">Uzmanlık Alanları</p>
               <div className="flex gap-2">

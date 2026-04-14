@@ -163,6 +163,26 @@ export default function App() {
     userProfile?.role === 'admin' ||
     (user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false);
 
+  const [staffRecord, setStaffRecord] = useState<Staff | null>(null);
+
+  useEffect(() => {
+    if (user?.email && !isAdmin) {
+      const q = query(collection(db, 'staff'), where('email', '==', user.email.toLowerCase()));
+      const unsub = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          setStaffRecord({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Staff);
+        } else {
+          setStaffRecord(null);
+        }
+      });
+      return () => unsub();
+    } else {
+      setStaffRecord(null);
+    }
+  }, [user, isAdmin]);
+
+  const isStaff = !!staffRecord;
+
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden">
       {/* Background Decorations */}
@@ -266,9 +286,9 @@ export default function App() {
               <TabsTrigger value="my-appointments" className="rounded-xl px-8 data-[state=active]:bg-brand-purple data-[state=active]:text-white">
                 Randevularım
               </TabsTrigger>
-              {isAdmin && (
+              {(isAdmin || isStaff) && (
                 <TabsTrigger value="admin" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:text-black">
-                  Admin Panel
+                  {isAdmin ? 'Admin Panel' : 'Personel Paneli'}
                 </TabsTrigger>
               )}
             </TabsList>
@@ -358,7 +378,7 @@ export default function App() {
             </div>
           </TabsContent>
 
-          {isAdmin && (
+          {(isAdmin || isStaff) && (
             <TabsContent value="admin">
               <Tabs defaultValue="appointments" className="w-full">
                 <div className="flex justify-center mb-8">
@@ -367,39 +387,51 @@ export default function App() {
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Randevular
                     </TabsTrigger>
-                    <TabsTrigger value="rooms" className="rounded-lg data-[state=active]:bg-brand-pink">
-                      <Landmark className="w-4 h-4 mr-2" />
-                      Odalar & Masalar
-                    </TabsTrigger>
-                    <TabsTrigger value="staff" className="rounded-lg data-[state=active]:bg-brand-purple">
-                      <UserCog className="w-4 h-4 mr-2" />
-                      Personel
-                    </TabsTrigger>
+                    {isAdmin && (
+                      <TabsTrigger value="rooms" className="rounded-lg data-[state=active]:bg-brand-pink">
+                        <Landmark className="w-4 h-4 mr-2" />
+                        Odalar & Masalar
+                      </TabsTrigger>
+                    )}
+                    {isAdmin && (
+                      <TabsTrigger value="staff" className="rounded-lg data-[state=active]:bg-brand-purple">
+                        <UserCog className="w-4 h-4 mr-2" />
+                        Personel
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger value="customers" className="rounded-lg data-[state=active]:bg-brand-purple">
                       <Users className="w-4 h-4 mr-2" />
                       Müşteriler
                     </TabsTrigger>
-                    <TabsTrigger value="announcements" className="rounded-lg data-[state=active]:bg-brand-purple">
-                      <Megaphone className="w-4 h-4 mr-2" />
-                      Duyurular
-                    </TabsTrigger>
+                    {isAdmin && (
+                      <TabsTrigger value="announcements" className="rounded-lg data-[state=active]:bg-brand-purple">
+                        <Megaphone className="w-4 h-4 mr-2" />
+                        Duyurular
+                      </TabsTrigger>
+                    )}
                   </TabsList>
                 </div>
                 <TabsContent value="appointments">
-                  <AppointmentManagement />
+                  <AppointmentManagement staffId={staffRecord?.id} />
                 </TabsContent>
-                <TabsContent value="rooms">
-                  <RoomManagement />
-                </TabsContent>
-                <TabsContent value="staff">
-                  <StaffManagement />
-                </TabsContent>
+                {isAdmin && (
+                  <TabsContent value="rooms">
+                    <RoomManagement />
+                  </TabsContent>
+                )}
+                {isAdmin && (
+                  <TabsContent value="staff">
+                    <StaffManagement />
+                  </TabsContent>
+                )}
                 <TabsContent value="customers">
-                  <CustomerDatabase />
+                  <CustomerDatabase staffId={staffRecord?.id} />
                 </TabsContent>
-                <TabsContent value="announcements">
-                  <Announcements />
-                </TabsContent>
+                {isAdmin && (
+                  <TabsContent value="announcements">
+                    <Announcements />
+                  </TabsContent>
+                )}
               </Tabs>
             </TabsContent>
           )}
