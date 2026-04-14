@@ -6,7 +6,7 @@ export interface UserProfile {
   email: string;
   photoURL: string;
   phoneNumber?: string;
-  role: 'admin' | 'client';
+  role: 'admin' | 'staff' | 'client';
   notes?: string;
   favoriteServices?: string[];
   createdAt: string;

@@ -147,6 +147,7 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
       setStep('success');
       toast.success('Randevu talebiniz başarıyla oluşturuldu!');
     } catch (error) {
+      toast.error('Randevu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
       handleFirestoreError(error, OperationType.CREATE, 'appointments');
     } finally {
       setIsSubmitting(false);
@@ -428,10 +429,10 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
               <Button variant="ghost" onClick={() => setStep('staff')} className="flex-1">Geri</Button>
               <Button
                 onClick={handleNextFromMethod}
-                disabled={!paymentMethod}
+                disabled={!paymentMethod || isSubmitting}
                 className="flex-[2] btn-gradient rounded-xl shadow-lg shadow-brand-pink/20"
               >
-                Devam Et
+                {isSubmitting ? 'İşleniyor...' : 'Devam Et'}
               </Button>
             </div>
           </div>

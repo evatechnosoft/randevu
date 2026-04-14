@@ -90,6 +90,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /rooms/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /appointments/{appointmentId} {
       allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidAppointment(request.resource.data);

@@ -11,7 +11,7 @@ import {
   updateProfile,
   User,
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, getDocFromServer, orderBy } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, getDocs, setDoc, collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, getDocFromServer, orderBy } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
@@ -85,6 +85,7 @@ testConnection();
 export {
   doc,
   getDoc,
+  getDocs,
   setDoc,
   collection,
   query,
