@@ -28,6 +28,9 @@ const TIME_SLOTS = [
   '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
 ];
 
+const TR_DAY_NAMES = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+const EN_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 type Step = 'datetime' | 'staff' | 'payment-method' | 'payment-info' | 'success';
 
 export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
@@ -40,6 +43,25 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
   const [bookedStaffIds, setBookedStaffIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<Appointment['paymentMethod']>('transfer');
+
+  const getScheduleByDate = (weeklySchedule: Record<string, { start: string; end: string; isOpen: boolean }> | undefined, targetDate: Date) => {
+    if (!weeklySchedule) return undefined;
+
+    const dayIndex = targetDate.getDay();
+    const keysToTry = [
+      TR_DAY_NAMES[dayIndex],
+      EN_DAY_NAMES[dayIndex],
+      format(targetDate, 'EEEE', { locale: tr }),
+      format(targetDate, 'EEEE'),
+    ];
+
+    for (const key of keysToTry) {
+      const schedule = weeklySchedule[key];
+      if (schedule) return schedule;
+    }
+
+    return undefined;
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -97,9 +119,8 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
     setIsSubmitting(true);
     
     // Find an available room
-    const dayName = format(date, 'EEEE', { locale: tr });
     const availableRoom = rooms.find(room => {
-      const schedule = room.weeklySchedule[dayName];
+      const schedule = getScheduleByDate(room.weeklySchedule, date);
       return schedule && schedule.isOpen && selectedTime >= schedule.start && selectedTime < schedule.end;
     });
 
@@ -141,33 +162,33 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
 
   const isSlotAvailable = (time: string) => {
     if (!date || !service) return false;
-    const dayName = format(date, 'EEEE', { locale: tr });
-    
-    // 1. Check if any room of this type is open at this time
-    const availableRooms = rooms.filter(room => {
-      const schedule = room.weeklySchedule[dayName];
-      if (!schedule || !schedule.isOpen) return false;
-      return time >= schedule.start && time < schedule.end;
-    });
 
-    if (availableRooms.length === 0) return false;
+    // If rooms are not configured yet, do not block booking at slot level.
+    const hasAvailableRoom = rooms.length === 0
+      ? true
+      : rooms.some(room => {
+          const schedule = getScheduleByDate(room.weeklySchedule, date);
+          if (!schedule || !schedule.isOpen) return false;
+          return time >= schedule.start && time < schedule.end;
+        });
 
-    // 2. Check if any staff for this service is open at this time
-    const availableStaff = staffList.filter(staff => {
-      const schedule = staff.weeklySchedule?.[dayName];
-      if (!schedule || !schedule.isOpen) return false;
-      return time >= schedule.start && time < schedule.end;
-    });
+    if (!hasAvailableRoom) return false;
 
-    if (availableStaff.length === 0) return false;
+    // If staff is not configured yet, auto-assignment still allows flow to continue.
+    const hasAvailableStaff = staffList.length === 0
+      ? true
+      : staffList.some(staff => {
+          const schedule = getScheduleByDate(staff.weeklySchedule, date);
+          if (!schedule || !schedule.isOpen) return false;
+          return time >= schedule.start && time < schedule.end;
+        });
 
-    return true;
+    return hasAvailableStaff;
   };
 
   const getStaffStatus = (staff: Staff) => {
     if (!date || !selectedTime) return 'unknown';
-    const dayName = format(date, 'EEEE', { locale: tr });
-    const schedule = staff.weeklySchedule?.[dayName];
+    const schedule = getScheduleByDate(staff.weeklySchedule, date);
     
     if (!schedule || !schedule.isOpen || selectedTime < schedule.start || selectedTime >= schedule.end) {
       return 'off';
