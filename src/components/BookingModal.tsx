@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../lib/LanguageContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -34,6 +35,7 @@ const EN_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 type Step = 'datetime' | 'staff' | 'payment-method' | 'payment-info' | 'success';
 
 export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
+  const { t, language } = useLanguage();
   const [step, setStep] = useState<Step>('datetime');
   const [date, setDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
@@ -223,12 +225,12 @@ export function BookingModal({ service, isOpen, onClose }: BookingModalProps) {
       <DialogContent className="glass-dark border-white/10 text-white sm:max-w-[425px] overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gradient">{service.name}</DialogTitle>
-          <DialogDescription className="text-white/60">
-            {step === 'datetime' && 'Lütfen tarih ve saat seçin.'}
-            {step === 'staff' && 'Tercih ettiğiniz personeli seçin.'}
-            {step === 'payment-method' && 'Ödeme yöntemi seçin.'}
-            {step === 'payment-info' && 'Havale bilgilerini not edin.'}
-            {step === 'success' && 'Randevunuz oluşturuldu!'}
+          <DialogDescription className="text-foreground/60">
+            {step === 'datetime' && (language === 'tr' ? 'Lütfen tarih ve saat seçin.' : 'Please select date and time.')}
+            {step === 'staff' && (language === 'tr' ? 'Tercih ettiğiniz personeli seçin.' : 'Select preferred staff.')}
+            {step === 'payment-method' && (language === 'tr' ? 'Ödeme yöntemi seçin.' : 'Select payment method.')}
+            {step === 'payment-info' && (language === 'tr' ? 'Havale bilgilerini not edin.' : 'Note transfer info.')}
+            {step === 'success' && (language === 'tr' ? 'Randevunuz oluşturuldu!' : 'Appointment created!')}
           </DialogDescription>
         </DialogHeader>
 

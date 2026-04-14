@@ -12,7 +12,8 @@ import { db, collection, onSnapshot, query, where, auth, doc, getDoc, setDoc } f
 import { useAuthState } from './hooks/useAuthState';
 import { Toaster } from '@/components/ui/sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Calendar as CalendarIcon, History, Share2, Instagram, Facebook, LayoutDashboard, Users, UserCog, Landmark, Megaphone } from 'lucide-react';
+import { useLanguage } from './lib/LanguageContext';
+import { Sparkles, Calendar as CalendarIcon, History, Share2, Instagram, Facebook, LayoutDashboard, Users, UserCog, Landmark, Megaphone, LayoutGrid, List } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,7 @@ const MOCK_SERVICES: Service[] = [
 ];
 
 export default function App() {
+  const { t, language } = useLanguage();
   const { user, loading: authLoading } = useAuthState();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -87,6 +89,7 @@ export default function App() {
   const [userAppointments, setUserAppointments] = useState<Appointment[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snapshot) => {
@@ -250,14 +253,17 @@ export default function App() {
             transition={{ duration: 0.5 }}
           >
             <Badge className="bg-brand-pink/20 text-brand-pink border-brand-pink/30 px-4 py-1 rounded-full mb-4">
-              Yeni Nesil Güzellik Deneyimi
+              {t('hero.badge')}
             </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              Kendini <span className="text-gradient">Şımartmanın</span> <br /> Tam Zamanı
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">
+              {language === 'tr' ? (
+                <>Kendini <span className="text-gradient">Şımartmanın</span> <br /> Tam Zamanı</>
+              ) : (
+                <>Time to <span className="text-gradient">Pamper</span> <br /> Yourself</>
+              )}
             </h1>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto mt-6">
-              Lüks tırnak tasarımı, profesyonel cilt bakımı ve dinlendirici masaj hizmetlerimizle 
-              size özel bir güzellik yolculuğu sunuyoruz.
+            <p className="text-foreground/60 text-lg max-w-2xl mx-auto mt-6 leading-relaxed">
+              {t('hero.subtitle')}
             </p>
           </motion.div>
 
@@ -281,45 +287,70 @@ export default function App() {
           <div className="flex justify-center mb-8">
             <TabsList className="glass border-white/10 p-1 rounded-2xl">
               <TabsTrigger value="services" className="rounded-xl px-8 data-[state=active]:bg-brand-pink data-[state=active]:text-white">
-                Hizmetler
+                {t('tabs.services')}
               </TabsTrigger>
               <TabsTrigger value="my-appointments" className="rounded-xl px-8 data-[state=active]:bg-brand-purple data-[state=active]:text-white">
-                Randevularım
+                {t('tabs.appointments')}
               </TabsTrigger>
               {(isAdmin || isStaff) && (
-                <TabsTrigger value="admin" className="rounded-xl px-8 data-[state=active]:bg-white data-[state=active]:text-black">
-                  {isAdmin ? 'Admin Panel' : 'Personel Paneli'}
+                <TabsTrigger value="admin" className="rounded-xl px-8 data-[state=active]:bg-foreground data-[state=active]:text-background">
+                  {isAdmin ? t('tabs.admin') : t('tabs.staff')}
                 </TabsTrigger>
               )}
             </TabsList>
           </div>
 
           <TabsContent value="services" className="space-y-8">
-            <div className="flex justify-center gap-2 flex-wrap">
-              {['all', 'nails', 'skin', 'massage'].map((cat) => (
-                <Button
-                  key={cat}
-                  variant={activeTab === cat ? 'default' : 'outline'}
-                  onClick={() => setActiveTab(cat)}
-                  className={cn(
-                    "rounded-full px-6 transition-all",
-                    activeTab === cat 
-                      ? "bg-white text-black hover:bg-white/90" 
-                      : "glass border-white/10 text-white hover:bg-white/10"
-                  )}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+              <div className="flex justify-center gap-2 flex-wrap">
+                {['all', 'nails', 'skin', 'massage'].map((cat) => (
+                  <Button
+                    key={cat}
+                    variant={activeTab === cat ? 'default' : 'outline'}
+                    onClick={() => setActiveTab(cat)}
+                    className={cn(
+                      "rounded-full px-6 transition-all",
+                      activeTab === cat 
+                        ? "bg-foreground text-background hover:bg-foreground/90" 
+                        : "glass border-white/10 text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    {t(`cat.${cat}`)}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1 glass p-1 rounded-xl">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('grid')}
+                  className={cn("w-8 h-8 rounded-lg", viewMode === 'grid' ? "bg-foreground/10 text-brand-pink" : "text-foreground/40")}
                 >
-                  {cat === 'all' ? 'Hepsi' : cat === 'nails' ? 'Tırnak' : cat === 'skin' ? 'Cilt Bakımı' : 'Masaj'}
+                  <LayoutGrid className="w-4 h-4" />
                 </Button>
-              ))}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('list')}
+                  className={cn("w-8 h-8 rounded-lg", viewMode === 'list' ? "bg-foreground/10 text-brand-pink" : "text-foreground/40")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={cn(
+              "grid gap-8",
+              viewMode === 'grid' ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-4xl mx-auto"
+            )}>
               <AnimatePresence mode="popLayout">
                 {filteredServices.map((service) => (
                   <ServiceCard 
                     key={service.id} 
                     service={service} 
                     onBook={handleBook} 
+                    viewMode={viewMode}
                   />
                 ))}
               </AnimatePresence>

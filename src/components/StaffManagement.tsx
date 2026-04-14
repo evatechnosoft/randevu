@@ -147,7 +147,7 @@ export function StaffManagement() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <img src={s.imageUrl} className="w-16 h-16 rounded-full object-cover border-2 border-brand-pink/20" />
+                  <img src={s.imageUrl} alt={s.name} className="w-16 h-16 rounded-full object-cover border-2 border-brand-pink/20" />
                   <div>
                     <h4 className="font-bold text-xl text-white">{s.name}</h4>
                     <div className="flex gap-1 mt-1">
@@ -186,8 +186,9 @@ export function StaffManagement() {
                     <div key={day} className="glass p-3 rounded-xl border-white/5 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-white/80">{day}</span>
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
+                          title={`${day} çalışma durumu`}
                           checked={s.weeklySchedule?.[day]?.isOpen}
                           onChange={(e) => handleUpdateSchedule(s.id, day, 'isOpen', e.target.checked)}
                           className="w-4 h-4 accent-brand-pink"

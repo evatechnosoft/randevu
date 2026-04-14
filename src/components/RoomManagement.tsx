@@ -168,6 +168,7 @@ export function RoomManagement() {
                           checked={room.weeklySchedule[day].isOpen}
                           onChange={(e) => handleUpdateSchedule(room.id, day, 'isOpen', e.target.checked)}
                           className="w-4 h-4 accent-brand-pink"
+                          aria-label={`${day} açık/kapalı`}
                         />
                       </div>
                       {room.weeklySchedule[day].isOpen && (

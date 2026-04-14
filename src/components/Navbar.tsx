@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
+import { useLanguage } from '../lib/LanguageContext';
 import {
   auth,
   googleProvider,
@@ -13,11 +15,13 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { LogIn, LogOut, Mail, Sparkles } from 'lucide-react';
+import { LogIn, LogOut, Mail, Sparkles, Sun, Moon, Languages } from 'lucide-react';
 import { useAuthState } from '../hooks/useAuthState';
 
 export function Navbar() {
   const { user } = useAuthState();
+  const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [displayName, setDisplayName] = useState('');
@@ -119,23 +123,43 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass rounded-2xl px-6 py-3 border-white/10 shadow-[0_0_30px_rgba(255,0,128,0.1)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass rounded-2xl px-6 py-3 border-white/10 shadow-lg shadow-black/5">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-pink to-brand-purple flex items-center justify-center shadow-[0_0_20px_rgba(255,0,128,0.4)]">
             <Sparkles className="text-white w-6 h-6" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-white hidden sm:block">
-            Işıltı & Zarafet
+          <span className="text-xl font-bold tracking-tight text-foreground hidden sm:block">
+            {t('nav.title')}
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 glass rounded-xl p-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="w-8 h-8 rounded-lg text-foreground/70 hover:text-foreground"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+            <div className="w-px h-4 bg-border/50 mx-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLanguage(language === 'tr' ? 'en' : 'tr')}
+              className="h-8 px-2 rounded-lg text-xs font-bold text-foreground/70 hover:text-foreground"
+            >
+              {language.toUpperCase()}
+            </Button>
+          </div>
+
           {user ? (
             <>
               <div className="flex items-center gap-3">
                 <div className="text-right hidden md:block">
-                  <p className="text-sm font-medium text-white">{user.displayName}</p>
-                  <p className="text-xs text-white/60">{user.email}</p>
+                  <p className="text-sm font-medium text-foreground">{user.displayName}</p>
+                  <p className="text-xs text-foreground/60">{user.email}</p>
                 </div>
                 <Avatar className="border-2 border-brand-pink/50">
                   <AvatarImage src={user.photoURL || ''} />
@@ -148,7 +172,7 @@ export function Navbar() {
                 variant="ghost" 
                 size="icon" 
                 onClick={handleLogout}
-                className="text-white/70 hover:text-white hover:bg-white/10"
+                className="text-foreground/70 hover:text-foreground hover:bg-foreground/10"
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -159,7 +183,7 @@ export function Navbar() {
               className="btn-gradient rounded-xl px-6"
             >
               <LogIn className="w-4 h-4 mr-2" />
-              Giriş Yap
+              {t('nav.login')}
             </Button>
           )}
         </div>
@@ -168,11 +192,11 @@ export function Navbar() {
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
         <DialogContent className="glass-dark border-white/10 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
-              {isRegisterMode ? 'Hesap Oluştur' : 'Giriş Yap'}
+            <DialogTitle className="text-xl font-bold text-foreground">
+              {isRegisterMode ? (language === 'tr' ? 'Hesap Oluştur' : 'Create Account') : t('nav.login')}
             </DialogTitle>
             <DialogDescription className="text-white/60">
-              Google ile tek tık giriş yapabilir veya e-posta/şifre kullanabilirsiniz.
+              {language === 'tr' ? 'Google ile tek tık giriş yapabilir veya e-posta/şifre kullanabilirsiniz.' : 'Login with Google or use email/password.'}
             </DialogDescription>
           </DialogHeader>
 

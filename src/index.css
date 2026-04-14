@@ -3,20 +3,30 @@
 @theme {
   --color-brand-pink: #ff0080;
   --color-brand-purple: #8b5cf6;
-  --color-glass: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-glass: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
   
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-[#141824] text-white min-h-screen overflow-x-hidden;
-    background: 
-      radial-gradient(circle at 18% 18%, rgba(255, 78, 163, 0.24) 0%, transparent 42%),
-      radial-gradient(circle at 82% 82%, rgba(139, 92, 246, 0.22) 0%, transparent 45%),
-      linear-gradient(180deg, #1a1f2f 0%, #121727 100%);
+    @apply bg-background text-foreground min-h-screen overflow-x-hidden transition-colors duration-300;
     background-attachment: fixed;
+  }
+
+  .dark body {
+    background: 
+      radial-gradient(circle at 18% 18%, rgba(255, 0, 128, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 82% 82%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+      #0a0c14;
+  }
+
+  body:not(.dark) {
+    background: 
+      radial-gradient(circle at 18% 18%, rgba(255, 0, 128, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 82% 82%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+      #f8fafc;
   }
 }
 
@@ -31,11 +41,25 @@
 }
 
 .glass {
-  @apply bg-white/14 backdrop-blur-xl border border-white/25 shadow-2xl;
+  @apply backdrop-blur-xl border transition-all duration-300;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.dark .glass {
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+body:not(.dark) .glass {
+  --glass-bg: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.05);
 }
 
 .glass-dark {
-  @apply bg-black/10 backdrop-blur-xl border border-white/15 shadow-2xl;
+  @apply backdrop-blur-2xl border transition-all duration-300;
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .text-gradient {
