@@ -1,10 +1,9 @@
 {
-  "projectId": "gen-lang-client-0225124666",
-  "appId": "1:368566587541:web:96613fa7923b526bd38b9c",
-  "apiKey": "AIzaSyCBK8NY-NCGsyzKEoR7spU2xEFlyuxO47I",
-  "authDomain": "gen-lang-client-0225124666.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-11243acf-c6bb-4c14-b495-3844c8141ed1",
-  "storageBucket": "gen-lang-client-0225124666.firebasestorage.app",
-  "messagingSenderId": "368566587541",
+  "projectId": "randevu-8ce62",
+  "appId": "1:823685586359:web:c7d3d140a19062d36e5c32",
+  "apiKey": "AIzaSyARlo4il2uusrZ1AHQHGBz5vg6EWTvxtDs",
+  "authDomain": "randevu-8ce62.firebaseapp.com",
+  "storageBucket": "randevu-8ce62.firebasestorage.app",
+  "messagingSenderId": "823685586359",
   "measurementId": ""
 }
