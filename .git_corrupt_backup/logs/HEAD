@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 b61c32d8d4425ce08e589ac35dbc447a510399c9 evatechnosoft <evatechnosoft@gmail.com> 1776158296 +0300	commit (initial): fix(instructions): bootstrap workspace copilot guidelines
+b61c32d8d4425ce08e589ac35dbc447a510399c9 b61c32d8d4425ce08e589ac35dbc447a510399c9 evatechnosoft <evatechnosoft@gmail.com> 1776158356 +0300	checkout: moving from fix/copilot-instructions-bootstrap to dev
+b61c32d8d4425ce08e589ac35dbc447a510399c9 bf8e808ec8701d1d1a65fb459182342a121defb4 evatechnosoft <evatechnosoft@gmail.com> 1776161131 +0300	commit: fix(app): resolve type/runtime issues and harden booking avatar image
+bf8e808ec8701d1d1a65fb459182342a121defb4 bf8e808ec8701d1d1a65fb459182342a121defb4 evatechnosoft <evatechnosoft@gmail.com> 1776161389 +0300	checkout: moving from dev to prod
+bf8e808ec8701d1d1a65fb459182342a121defb4 bf8e808ec8701d1d1a65fb459182342a121defb4 evatechnosoft <evatechnosoft@gmail.com> 1776162891 +0300	checkout: moving from prod to dev
+bf8e808ec8701d1d1a65fb459182342a121defb4 73cc32c78bf9e8bd71df0260f2bab32309ae3fa7 evatechnosoft <evatechnosoft@gmail.com> 1776162892 +0300	commit: feat(deploy): enable GitHub Pages workflow deployment
+73cc32c78bf9e8bd71df0260f2bab32309ae3fa7 a530e23fe3aa83cf672742060cae39a2081a9ec4 evatechnosoft <evatechnosoft@gmail.com> 1776163005 +0300	commit: chore(repo): add missing project files for Pages build

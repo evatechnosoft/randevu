@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: uid, displayName, email, photoURL, phoneNumber, role, createdAt
+    //
+    // Collection: services
+    // Fields: name, category, price, duration, description, imageUrl
+    //
+    // Collection: appointments
+    // Fields: userId, userName, userEmail, serviceId, serviceName, date, time, status, paymentMethod, createdAt
+    //
+    // ===============================================================
+
+    // Collection: staff
+    // Fields: name, specialties, availability, imageUrl, isActive
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "deancjx@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'client'];
+    }
+
+    function isValidStaff(data) {
+      return data.keys().hasAll(['name', 'specialties', 'isActive']) &&
+             data.name is string && data.name.size() > 0 &&
+             data.specialties is list &&
+             data.isActive is bool;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll(['name', 'category', 'price', 'duration']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.category in ['nails', 'skin', 'massage'] &&
+             data.price is number && data.price >= 0 &&
+             data.duration is number && data.duration > 0;
+    }
+
+    function isValidAppointment(data) {
+      return data.keys().hasAll(['userId', 'serviceId', 'date', 'time', 'status', 'paymentMethod']) &&
+             data.userId is string &&
+             data.serviceId is string &&
+             data.date is string && data.date.matches("^\\d{4}-\\d{2}-\\d{2}$") &&
+             data.time is string && data.time.matches("^\\d{2}:\\d{2}$") &&
+             data.status in ['pending', 'confirmed', 'cancelled'] &&
+             data.paymentMethod in ['cash', 'transfer', 'stripe'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == 'client';
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role) || isAdmin();
+    }
+
+    match /staff/{staffId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true; // Services are public
+      allow write: if isAdmin();
+    }
+
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidAppointment(request.resource.data);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin()) && isValidAppointment(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}
