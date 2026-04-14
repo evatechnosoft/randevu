@@ -10,9 +10,13 @@ createRoot(document.getElementById('root')!).render(
 );
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch((err) => {
-      console.log('ServiceWorker registration failed: ', err);
-    });
+  window.addEventListener('load', async () => {
+    try {
+      // Disable SW for now to avoid stale cache white-screen issues on Pages.
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    } catch (err) {
+      console.log('ServiceWorker cleanup failed: ', err);
+    }
   });
 }

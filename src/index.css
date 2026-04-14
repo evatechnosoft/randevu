@@ -2,7 +2,7 @@
 
 @theme {
   --color-brand-pink: #ff0080;
-  --color-brand-purple: #7928ca;
+  --color-brand-purple: #8b5cf6;
   --color-glass: rgba(255, 255, 255, 0.1);
   --color-glass-border: rgba(255, 255, 255, 0.2);
   
@@ -11,11 +11,11 @@
 
 @layer base {
   body {
-    @apply bg-[#0a0a0c] text-white min-h-screen overflow-x-hidden;
+    @apply bg-[#141824] text-white min-h-screen overflow-x-hidden;
     background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 0, 128, 0.15) 0%, transparent 40%),
-      radial-gradient(circle at 80% 80%, rgba(121, 40, 202, 0.15) 0%, transparent 40%),
-      radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, transparent 100%);
+      radial-gradient(circle at 18% 18%, rgba(255, 78, 163, 0.24) 0%, transparent 42%),
+      radial-gradient(circle at 82% 82%, rgba(139, 92, 246, 0.22) 0%, transparent 45%),
+      linear-gradient(180deg, #1a1f2f 0%, #121727 100%);
     background-attachment: fixed;
   }
 }
@@ -31,11 +31,11 @@
 }
 
 .glass {
-  @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+  @apply bg-white/14 backdrop-blur-xl border border-white/25 shadow-2xl;
 }
 
 .glass-dark {
-  @apply bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl;
+  @apply bg-black/10 backdrop-blur-xl border border-white/15 shadow-2xl;
 }
 
 .text-gradient {

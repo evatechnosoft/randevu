@@ -28,7 +28,7 @@ const MOCK_SERVICES: Service[] = [
     price: 450,
     duration: 90,
     description: 'Dayanıklı ve estetik protez tırnak uygulaması ile elleriniz her zaman bakımlı görünsün.',
-    imageUrl: 'https://picsum.photos/seed/nails/800/600'
+    imageUrl: 'https://images.pexels.com/photos/704815/pexels-photo-704815.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
   {
     id: '2',
@@ -37,7 +37,7 @@ const MOCK_SERVICES: Service[] = [
     price: 600,
     duration: 60,
     description: 'Cildinizi derinlemesine temizleyen, nemlendiren ve canlandıran profesyonel bakım.',
-    imageUrl: 'https://picsum.photos/seed/skincare/800/600'
+    imageUrl: 'https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
   {
     id: '3',
@@ -46,7 +46,7 @@ const MOCK_SERVICES: Service[] = [
     price: 500,
     duration: 50,
     description: 'Esansiyel yağlar ile ruhunuzu ve bedeninizi dinlendiren huzur dolu bir deneyim.',
-    imageUrl: 'https://picsum.photos/seed/massage/800/600'
+    imageUrl: 'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
   {
     id: '4',
@@ -55,7 +55,7 @@ const MOCK_SERVICES: Service[] = [
     price: 250,
     duration: 45,
     description: 'Haftalarca bozulmayan, parlak ve pürüzsüz tırnaklar için kalıcı oje uygulaması.',
-    imageUrl: 'https://picsum.photos/seed/manicure/800/600'
+    imageUrl: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
   {
     id: '5',
@@ -64,7 +64,7 @@ const MOCK_SERVICES: Service[] = [
     price: 750,
     duration: 75,
     description: 'Yaşlanma belirtilerine karşı cildi sıkılaştıran ve yenileyen özel terapi.',
-    imageUrl: 'https://picsum.photos/seed/facial/800/600'
+    imageUrl: 'https://images.pexels.com/photos/5069431/pexels-photo-5069431.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
   {
     id: '6',
@@ -73,7 +73,7 @@ const MOCK_SERVICES: Service[] = [
     price: 650,
     duration: 70,
     description: 'Isıtılmış taşlar ile kas gerginliğini azaltan ve derin gevşeme sağlayan masaj.',
-    imageUrl: 'https://picsum.photos/seed/spa/800/600'
+    imageUrl: 'https://images.pexels.com/photos/3865556/pexels-photo-3865556.jpeg?auto=compress&cs=tinysrgb&w=1200'
   }
 ];
 
